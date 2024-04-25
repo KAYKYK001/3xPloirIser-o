@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUD - Inserir Itens</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .hud {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin: 50px auto;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); /* Adicionando sombra neon */
+        }
+        .hud h1 {
+            margin: 0;
+            padding: 10px 0;
+            color: #0ff; /* Cor neon para o título */
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff; /* Efeito de texto neon */
+        }
+        .form-container {
+            margin-top: 20px;
+            border: 2px solid #0ff; /* Cor neon para a borda */
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #000; /* Fundo preto */
+        }
+        .form-container input[type="text"],
+        .form-container input[type="number"] {
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid #0ff;
+            background-color: #000;
+            color: #0ff;
+            border-radius: 5px;
+        }
+        .form-container input[type="submit"] {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #0ff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 20px #0ff; /* Adicionando sombra neon */
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            border: 2px solid #0ff;
+            background-color: #000;
+            box-shadow: 0 0 20px #0ff; /* Adicionando sombra neon */
+        }
+        th, td {
+            border: 1px solid #0ff;
+            padding: 8px;
+        }
+        th {
+            background-color: #0ff;
+            color: #000;
+        }
+        td {
+            background-color: #000;
+        }
+        .remove-item-btn, .download-btn {
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .remove-item-btn:hover, .download-btn:hover {
+            background-color: #ff0; /* Cor neon ao passar o mouse */
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="hud">
+    <h1>Inserir Itens</h1>
+    <div class="form-container">
+        <form id="item-form">
+            <input type="text" id="item-name" placeholder="Nome do Item">
+            <input type="number" id="item-quantity" placeholder="Quantidade">
+            <input type="submit" value="Adicionar Item" class="remove-item-btn"> <!-- Ícone de mais -->
+            <i class="fas fa-plus-circle"></i>
+        </form>
+    </div>
+    <div id="item-list">
+        <!-- Itens serão exibidos aqui -->
+    </div>
+    <button class="download-btn" id="download-btn"><i class="fas fa-download"></i> Download Lista</button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('item-form');
+        const itemList = document.getElementById('item-list');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const itemName = document.getElementById('item-name').value;
+            const itemQuantity = document.getElementById('item-quantity').value;
+
+            if (itemName.trim() === '' || itemQuantity.trim() === '') {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${itemName}</td>
+                <td>${itemQuantity}</td>
+                <td><button class="remove-item-btn">Remover</button></td>
+            `;
+            itemList.appendChild(row);
+
+            form.reset();
+        });
+
+        itemList.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-item-btn')) {
+                if (confirm('Tem certeza de que deseja remover este item?')) {
+                    event.target.closest('tr').remove();
+                }
+            }
+        });
+
+        // Adicionando a função de download ao botão de download
+        const downloadBtn = document.getElementById('download-btn');
+        downloadBtn.addEventListener('click', function() {
+            downloadItemList();
+        });
+
+        // Função para baixar a lista de itens
+        function downloadItemList() {
+            // Obter os itens da lista
+            const rows = itemList.querySelectorAll('tr');
+            let itemListText = '';
+
+            // Gerar texto para os itens
+            rows.forEach(row => {
+                const columns = row.querySelectorAll('td');
+                const itemName = columns[0].textContent;
+                const itemQuantity = columns[1].textContent;
+                itemListText += `${itemName}: ${itemQuantity}\n`;
+            });
+
+            // Criar um blob de texto para o download
+            const blob = new Blob([itemListText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            // Criar um link para o download e clicá-lo automaticamente
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'lista_de_itens.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    });
+</script>
+
+</body>
+</html>
